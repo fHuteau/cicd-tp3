@@ -41,7 +41,7 @@ jobs:
             --add-host=host.docker.internal:host-gateway \
             -v ${{ github.workspace }}:/work \
             ghcr.io/orange-opensource/hurl:latest \
-            --test /work/src/test/java/api
+            --test src/test/java/api
       - name: Prepare API test reports directory
         run: mkdir -p api-test-reports 
       - name: Upload API test reports
