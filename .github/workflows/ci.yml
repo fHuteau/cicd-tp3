@@ -1,0 +1,48 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+      - name: Wait for API to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -sSf http://localhost:8080/health > /dev/null; then
+              echo "API is up!"
+              exit 0
+            fi
+            echo "Waiting API..."
+            sleep 2
+          done
+          echo "API not ready"
+          tail -n 200 app.log || true
+          exit 1
+      - name: Run API tests (Hurl via Docker)
+        run: |
+          docker run --rm \
+            --add-host=host.docker.internal:host-gateway \
+            -v ${{ github.workspace }}:/work \
+            ghcr.io/orange-opensource/hurl:latest \
+            --test /work/src/test/java/api
+      - name: Prepare API test reports directory
+        run: mkdir -p api-test-reports 
+      - name: Upload API test reports
+        uses: actions/upload-artifact@v2
+        with:
+          name: api-test-reports
+          path: api-test-reports
+          retention-days: 1

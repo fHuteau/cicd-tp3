@@ -1,5 +1,6 @@
 package com.devops;
 
+import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public final class MiniApiServer {
 
@@ -20,6 +22,7 @@ public final class MiniApiServer {
                 sendJson(exchange, 405, "{\"error\":\"Method Not Allowed\"}");
                 return;
             }
+            System.out.println("GET /health");
             sendJson(exchange, 200, "{\"status\":\"UP\"}");
         });
 
@@ -30,36 +33,39 @@ public final class MiniApiServer {
                 return;
             }
 
-            String ordersJson = """
-        [
-          { "id": 1, "product": "Laptop", "price": 1200.0 },
-          { "id": 2, "product": "Mouse",  "price": 25.0 }
-        ]
-        """;
+            System.out.println("GET /api/orders");
+            List<Order> orders = OrderRepository.findAll();
 
+            String ordersJson = "[";
+            for (Order order : orders) {
+                ordersJson += "{\"id\":" + order.getId() + ",\"product\":\"" + order.getProduct() + "\",\"price\":"
+                        + order.getPrice() + "}";
+                if (orders.indexOf(order) < orders.size() - 1) {
+                    ordersJson += ",";
+                }
+            }
+            ordersJson = ordersJson + "]";
             sendJson(exchange, 200, ordersJson);
         });
 
-
-        // Petite page HTML racine (utile pour ZAP, et pour montrer qu'on a aussi du "web")
+        // Petite page HTML racine (utile pour ZAP, et pour montrer qu'on a aussi du
+        // "web")
         server.createContext("/", exchange -> {
             if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
                 sendText(exchange, 405, "Method Not Allowed");
                 return;
             }
-            String html = """
-                    <!doctype html>
-                    <html lang="en">
-                      <head><meta charset="utf-8"><title>Mini API</title></head>
-                      <body>
-                        <h1>Mini API Server</h1>
-                        <ul>
-                          <li><a href="/health">/health</a></li>
-                          <li><a href="/api/orders">/api/orders</a></li>
-                        </ul>
-                      </body>
-                    </html>
-                    """;
+            String html = "<!doctype html>" +
+                    "<html lang=\"en\">" +
+                    "<head><meta charset=\"utf-8\"><title>Mini API</title></head> " +
+                    "<body>" +
+                    "<h1>Mini API Server</h1>" +
+                    "<ul>" +
+                    "<li><a href=\"/health\">/health</a></li>" +
+                    "<li><a href=\"/api/orders\">/api/orders</a></li>" +
+                    "</ul>" +
+                    "</body>" +
+                    "</html>";
             sendHtml(exchange, 200, html);
         });
 
