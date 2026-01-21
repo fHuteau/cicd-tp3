@@ -10,10 +10,13 @@ runs:
           distribution: 'temurin'
           java-version: '11'
       - name: Build API
+        shell: bash
         run: mvn -q clean package
       - name: start API
         run: nohup java -jar target/*.jar > ../app.log 2>&1 &
+        shell: bash
       - name: Wait for API to be ready
+        shell: bash
         run: |
           for i in {1..30}; do
             if curl -sSf http://localhost:8080/health > /dev/null; then
@@ -27,4 +30,5 @@ runs:
           tail -n 200 app.log || true
           exit 1
       - name: Prepare API test reports directory
+        shell: bash
         run: mkdir -p api-test-reports 
