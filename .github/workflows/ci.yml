@@ -35,6 +35,8 @@ jobs:
           echo "API not ready"
           tail -n 200 app.log || true
           exit 1
+      - name: Prepare API test reports directory
+        run: mkdir -p api-test-reports 
       - name: Run API tests (Hurl via Docker)
         run: |
           docker run --rm -q\
@@ -45,5 +47,8 @@ jobs:
             --report-html /work/api-test-reports/report.html \
             --report-json /work/api-test-reports/report.json \
             --test /work/src/test/java/api/
-      - name: Prepare API test reports directory
-        run: mkdir -p api-test-reports 
+      - name: Upload API test reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-test-reports
+          path: api-test-reports/
