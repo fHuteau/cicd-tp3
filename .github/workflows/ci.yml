@@ -41,7 +41,7 @@ jobs:
       - name: Prepare API test reports directory
         run: mkdir -p api-test-reports 
       - name: Upload API test reports
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: api-test-reports
           path: api-test-reports
