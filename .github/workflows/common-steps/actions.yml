@@ -1,0 +1,32 @@
+name: Common Steps
+description: Steps partagés entre jobs
+
+runs:
+  using: composite
+  steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+      - name: Build API
+        run: mvn -q clean package
+      - name: start API
+        run: nohup java -jar target/*.jar > ../app.log 2>&1 &
+      - name: Wait for API to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -sSf http://localhost:8080/health > /dev/null; then
+              echo "API is up!"
+              exit 0
+            fi
+            echo "Waiting API..."
+            sleep 2
+          done
+          echo "API not ready"
+          tail -n 200 app.log || true
+          exit 1
+      - name: Prepare API test reports directory
+        run: mkdir -p api-test-reports 
