@@ -19,9 +19,9 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
       - name: Build API
-        run: mvn clean package
+        run: mvn -q clean package
       - name: start API
-        run: java -jar target/formation-cicd-test-tp-03-solution-1.0-SNAPSHOT.jar
+        run: java -jar target/*.jar
       - name: Wait for API to be ready
         run: |
           for i in {1..30}; do
