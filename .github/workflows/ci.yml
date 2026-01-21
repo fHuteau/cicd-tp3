@@ -37,11 +37,11 @@ jobs:
           exit 1
       - name: Run API tests (Hurl via Docker)
         run: |
-          docker run --rm \
+          docker run --rm -q \
             --network host \
             -v ${{ github.workspace }}:/work \
             ghcr.io/orange-opensource/hurl:latest \
-            --test /work/src/test/java/api/*.hurl
+            --test /work/src/main/test/java/api/*.hurl
       - name: Prepare API test reports directory
         run: mkdir -p api-test-reports 
       - name: Upload API test reports
