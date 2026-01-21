@@ -41,9 +41,9 @@ jobs:
         with:
           target: 'http://localhost:8080/'
           fail_action: true
-          cmd_options: '-J api-test-reports/report_json.json -w api-test-reports/report_md.md -r api-test-reports/report_html.html'
-      - name: Upload ZAP reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: zap-reports
-          path: api-test-reports/
+          # cmd_options: '-J api-test-reports/report_json.json -w api-test-reports/report_md.md -r api-test-reports/report_html.html'
+      # - name: Upload ZAP reports
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: zap-reports
+      #     path: api-test-reports/
