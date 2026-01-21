@@ -11,7 +11,7 @@ jobs:
   api-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: ./common-steps
+      - uses: ./.github/workflows/common-steps
       - name: Run API tests (Hurl via Docker)
         run: |
           docker run --rm -q\
@@ -42,4 +42,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: zap-reports
-          path: /work/api-test-reports/
+          path: api-test-reports/
