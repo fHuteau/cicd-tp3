@@ -52,3 +52,42 @@ jobs:
         with:
           name: api-test-reports
           path: api-test-reports/
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: api-tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+      - name: Build API
+        run: mvn -q clean package
+      - name: start API
+        run: nohup java -jar target/*.jar > ../app.log 2>&1 &
+      - name: Wait for API to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -sSf http://localhost:8080/health > /dev/null; then
+              echo "API is up!"
+              exit 0
+            fi
+            echo "Waiting API..."
+            sleep 2
+          done
+          echo "API not ready"
+          tail -n 200 app.log || true
+          exit 1
+      - name: Run OWASP ZAP
+        uses: zaproxy/action-full-scan@v0.8.0
+        with:
+          target: 'http://localhost:8080/'
+          fail_action: true
+          cmd_options: '-c "api-test-reports/zap.conf"'
+      - name: Upload ZAP reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-reports
+          path: api-test-reports/
