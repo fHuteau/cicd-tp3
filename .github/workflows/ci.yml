@@ -21,7 +21,7 @@ jobs:
       - name: Build API
         run: mvn -q clean package
       - name: start API
-        run: java -jar target/*.jar
+        run: nohup java -jar target/*.jar > ../app.log 2>&1 &
       - name: Wait for API to be ready
         run: |
           for i in {1..30}; do
