@@ -18,6 +18,8 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
+      - name: start API
+        run: nohup java -jar target/formation-cicd-test-tp-03-solution-1.0-SNAPSHOT.jar > ../app.log 2>&1 &
       - name: Wait for API to be ready
         run: |
           for i in {1..30}; do
